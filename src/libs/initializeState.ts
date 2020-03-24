@@ -77,17 +77,18 @@ export const initializeState = (state: State, userOption?: UserProps) => {
   const renderContent = () => {
     const transitionDuration = state.isSteadyHover ? state.hoverTransitionDuration : state.normalTransitionDuration
     const backgroundColor = state.isActive ? state.activeBackgroundColor : state.defaultBackgroundColor
-    if (state.hoverTarget) {
+    const targetRect = state.hoverTarget?.getClientRects()
+    if (state.hoverTarget && targetRect && targetRect.length > 0) {
       const padding = state.isActive ? state.activePadding : state.hoverPadding
       const radius = state.isActive ? state.activeRadius : state.hoverRadius
-      const targetRect = state.hoverTarget.getClientRects()
+      const rect = targetRect[0]
       merge(state.cursor, {
         ...cursorStyle,
         transitionDuration,
-        backgroundColor, left: (targetRect[0].left - padding) - state.point[0],
-        top: (targetRect[0].top - padding) - state.point[1],
-        right: state.point[0] - (targetRect[0].right + padding),
-        bottom: state.point[1] - (targetRect[0].bottom + padding),
+        backgroundColor, left: (rect.left - padding) - state.point[0],
+        top: (rect.top - padding) - state.point[1],
+        right: state.point[0] - (rect.right + padding),
+        bottom: state.point[1] - (rect.bottom + padding),
         borderRadius: radius,
         backdropFilter: ''
       })
@@ -95,10 +96,10 @@ export const initializeState = (state: State, userOption?: UserProps) => {
         {
           ...glowStyle,
           transitionDuration,
-          left: state.point[0] - (targetRect[0].left - padding) - state.glowRadius,
-          top: state.point[1] - (targetRect[0].top - padding) - state.glowRadius,
-          right: (targetRect[0].right + padding) - state.point[0] - state.glowRadius,
-          bottom: (targetRect[0].bottom + padding) - state.point[1] - state.glowRadius,
+          left: state.point[0] - (rect.left - padding) - state.glowRadius,
+          top: state.point[1] - (rect.top - padding) - state.glowRadius,
+          right: (rect.right + padding) - state.point[0] - state.glowRadius,
+          bottom: (rect.bottom + padding) - state.point[1] - state.glowRadius,
           borderRadius: radius * 2,
           backgroundImage: state.defaultBackgroundColor
         })
