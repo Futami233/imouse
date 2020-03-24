@@ -204,7 +204,6 @@ export const initializeState = (state: State, userOption?: UserProps) => {
     hoverTarget: null,
     point: [0, 0]
   })
-  renderContent()
 }
 
 export const restoreState = (state: State) => {
