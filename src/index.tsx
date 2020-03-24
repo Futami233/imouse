@@ -7,8 +7,9 @@ const App = () => {
     ...initialState
   }
   const mouseMove = (e: MouseEvent) => {
+    const currentY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0
     const { pageX, pageY } = e
-    state.point = [pageX, pageY]
+    state.point = [pageX, pageY - currentY]
     state.isVisible = !state.isTouch
     state.isSelection = !document.getSelection()?.isCollapsed
   }
