@@ -1,0 +1,213 @@
+import { State, UserProps, Props } from './interface'
+import { merge, setStyle } from './utils'
+
+export const initialProps: Props = {
+  defaultBackgroundColor: 'rgba(30, 111, 255, .1)',
+  activeBackgroundColor: 'rgba(30, 111, 255, .2)',
+  defaultSize: 20,
+  activeSize: 15,
+  hoverPadding: 8,
+  hoverRadius: 8,
+  activePadding: 4,
+  activeRadius: 4,
+  selectionWidth: 3,
+  selectionHeight: 40,
+  selectionRadius: 2,
+  hoverSelector: 'a, button, input[type="button"], input[type="checkbox"], input[type="radio"], input[type="file"], input[type="submit"]',
+  normalTransitionDuration: 200,
+  hoverTransitionDuration: 50,
+  blurRadius: 10,
+  glowRadius: 200,
+  style: {},
+  zIndex: 10000,
+}
+
+export const initialState = {
+  container: null,
+  cursor: null,
+  glow: null,
+  setSteadyHoverTimeout: null,
+  isTouch: false,
+  isVisible: false,
+  isActive: false,
+  isSelection: false,
+  isSteadyHover: false,
+  hoverTarget: null,
+  cursorLeft: 0,
+  cursorTop: 0
+}
+
+export const initializeState = (state: State, userOption?: UserProps) => {
+  merge(state, userOption)
+  const containerStyles = {
+    position: 'fixed',
+    zIndex: state.zIndex,
+    pointerEvents: 'none',
+    opacity: 1,
+    left: 0,
+    top: 0,
+    width: 0,
+    height: 0,
+    ...state.style
+  }
+  const cursorStyle = {
+    left: state.defaultSize / -2,
+    top: state.defaultSize / -2,
+    right: state.defaultSize / -2,
+    bottom: state.defaultSize / -2,
+    borderRadius: state.defaultSize / 2,
+    backdropFilter: state.blurRadius,
+    backgroundColor: state.defaultBackgroundColor,
+    position: 'absolute',
+    overflow: 'hidden',
+    transitionDuration: state.normalTransitionDuration,
+    transitionProperty: 'top, left, right, bottom, border-radius, background-color, backdrop-filter, -webkit-backdrop-filter, opacity'
+  }
+  const glowStyle = {
+    position: 'position',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    right: 0,
+    transitionProperty: 'all'
+  }
+  state.container && setStyle(state.container)
+  state.cursor && setStyle(state.cursor)
+  state.glow && setStyle(state.glow)
+  const renderContent = () => {
+    const transitionDuration = state.isSteadyHover ? state.hoverTransitionDuration : state.normalTransitionDuration
+    const backgroundColor = state.isActive ? state.activeBackgroundColor : state.defaultBackgroundColor
+    if (state.hoverTarget) {
+      const padding = state.isActive ? state.activePadding : state.hoverPadding
+      const radius = state.isActive ? state.activeRadius : state.hoverRadius
+      const targetRect = state.hoverTarget.getClientRects()
+      merge(state.cursor, {
+        ...cursorStyle,
+        transitionDuration,
+        backgroundColor, left: (targetRect[0].left - padding) - state.cursorLeft,
+        top: (targetRect[0].top - padding) - state.cursorTop,
+        right: state.cursorLeft - (targetRect[0].right + padding),
+        bottom: state.cursorTop - (targetRect[0].bottom + padding),
+        borderRadius: radius
+      })
+      merge(state.glow,
+        {
+          ...glowStyle,
+          transitionDuration,
+          left: state.cursorLeft - (targetRect[0].left - padding) - state.glowRadius,
+          top: state.cursorTop - (targetRect[0].top - padding) - state.glowRadius,
+          right: (targetRect[0].right + padding) - state.cursorLeft - state.glowRadius,
+          bottom: (targetRect[0].bottom + padding) - state.cursorTop - state.glowRadius,
+          borderRadius: radius * 2,
+          backgroundImage: state.defaultBackgroundColor
+        })
+    } else {
+      const width = state.isSelection ? state.selectionWidth : (state.isActive ? state.activeSize : state.defaultSize)
+      const height = state.isSelection ? state.selectionHeight : (state.isActive ? state.activeSize : state.defaultSize)
+      merge(state.cursor, {
+        ...cursorStyle,
+        transitionDuration,
+        backgroundColor,
+        left: -width / 2,
+        top: -height / 2,
+        right: -width / 2,
+        bottom: -height / 2,
+        borderRadius: state.isSelection ? state.selectionRadius : state.defaultSize / 2,
+        backdropFilter: state.blurRadius
+      })
+      merge(state.glow, { ...glowStyle, transitionDuration })
+    }
+    merge(state.container, {
+      ...containerStyles,
+      left: state.cursorLeft,
+      top: state.cursorTop,
+      opacity: state.isVisible ? 1 : 0,
+    })
+  }
+  Object.defineProperties(state, {
+    isSelection: {
+      get: function () {
+        return this._isSelection
+      },
+      set: function (value) {
+        this._isSelection = value
+        renderContent()
+      }
+    },
+    isVisible: {
+      get: function () {
+        return this._isVisible
+      },
+      set: function (value) {
+        this._isVisible = value
+        renderContent()
+      }
+    },
+    isTouch: {
+      get: function () {
+        return this._isTouch
+      },
+      set: function (value) {
+        this._isTouch = value
+        this.isVisible = !value
+      }
+    },
+    cursorLeft: {
+      get: function () {
+        return this._cursorLeft
+      },
+      set: function (value) {
+        this._cursorLeft = value
+        renderContent()
+      }
+    },
+    cursorTop: {
+      get: function () {
+        return this._cursorTop
+      },
+      set: function (value) {
+        this._cursorTop = value
+        renderContent()
+      }
+    },
+    isSteadyHover: {
+      get: function () {
+        return this._isSteadyHover
+      },
+      set: function (value) {
+        this._isSteadyHover = value
+        renderContent()
+      }
+    },
+    isActive: {
+      get: function () {
+        return this._isActive
+      },
+      set: function (value) {
+        this._isActive = value
+        renderContent()
+      }
+    },
+    hoverTarget: {
+      get: function () {
+        return this._hoverTarget
+      },
+      set: function (value) {
+        if (this._cursorLeft !== value) {
+          if (this.setSteadyHoverTimeout) {
+            clearTimeout(this.setSteadyHoverTimeout)
+            this.setSteadyHoverTimeout = null
+          }
+          this.isSteadyHover = false
+          this._hoverTarget = value
+          renderContent()
+        }
+      }
+    },
+  })
+  renderContent()
+}
+
+export const restoreState = (state: State) => {
+  merge(state, { ...initialState, ...initialProps })
+}
