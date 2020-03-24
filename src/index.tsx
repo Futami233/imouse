@@ -8,8 +8,7 @@ const App = () => {
   }
   const mouseMove = (e: MouseEvent) => {
     const { pageX, pageY } = e
-    state.cursorLeft = pageX
-    state.cursorTop = pageY
+    state.point = [pageX, pageY]
     state.isVisible = !state.isTouch
     state.isSelection = !document.getSelection()?.isCollapsed
   }

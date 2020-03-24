@@ -33,12 +33,10 @@ export const initialState = {
   isSelection: false,
   isSteadyHover: false,
   hoverTarget: null,
-  cursorLeft: 0,
-  cursorTop: 0
+  point: [0, 0]
 }
 
 export const initializeState = (state: State, userOption?: UserProps) => {
-  merge(state, userOption)
   const containerStyles = {
     position: 'fixed',
     zIndex: state.zIndex,
@@ -84,20 +82,20 @@ export const initializeState = (state: State, userOption?: UserProps) => {
       merge(state.cursor, {
         ...cursorStyle,
         transitionDuration,
-        backgroundColor, left: (targetRect[0].left - padding) - state.cursorLeft,
-        top: (targetRect[0].top - padding) - state.cursorTop,
-        right: state.cursorLeft - (targetRect[0].right + padding),
-        bottom: state.cursorTop - (targetRect[0].bottom + padding),
+        backgroundColor, left: (targetRect[0].left - padding) - state.point[0],
+        top: (targetRect[0].top - padding) - state.point[1],
+        right: state.point[0] - (targetRect[0].right + padding),
+        bottom: state.point[1] - (targetRect[0].bottom + padding),
         borderRadius: radius
       })
       merge(state.glow,
         {
           ...glowStyle,
           transitionDuration,
-          left: state.cursorLeft - (targetRect[0].left - padding) - state.glowRadius,
-          top: state.cursorTop - (targetRect[0].top - padding) - state.glowRadius,
-          right: (targetRect[0].right + padding) - state.cursorLeft - state.glowRadius,
-          bottom: (targetRect[0].bottom + padding) - state.cursorTop - state.glowRadius,
+          left: state.point[0] - (targetRect[0].left - padding) - state.glowRadius,
+          top: state.point[1] - (targetRect[0].top - padding) - state.glowRadius,
+          right: (targetRect[0].right + padding) - state.point[0] - state.glowRadius,
+          bottom: (targetRect[0].bottom + padding) - state.point[1] - state.glowRadius,
           borderRadius: radius * 2,
           backgroundImage: state.defaultBackgroundColor
         })
@@ -119,8 +117,7 @@ export const initializeState = (state: State, userOption?: UserProps) => {
     }
     merge(state.container, {
       ...containerStyles,
-      left: state.cursorLeft,
-      top: state.cursorTop,
+      point: state.point ? state.point : [0, 0],
       opacity: state.isVisible ? 1 : 0,
     })
   }
@@ -152,21 +149,12 @@ export const initializeState = (state: State, userOption?: UserProps) => {
         this.isVisible = !value
       }
     },
-    cursorLeft: {
+    point: {
       get: function () {
-        return this._cursorLeft
+        return this._point
       },
       set: function (value) {
-        this._cursorLeft = value
-        renderContent()
-      }
-    },
-    cursorTop: {
-      get: function () {
-        return this._cursorTop
-      },
-      set: function (value) {
-        this._cursorTop = value
+        this._point = value
         renderContent()
       }
     },
@@ -193,7 +181,7 @@ export const initializeState = (state: State, userOption?: UserProps) => {
         return this._hoverTarget
       },
       set: function (value) {
-        if (this._cursorLeft !== value) {
+        if (this._hoverTarget !== value) {
           if (this.setSteadyHoverTimeout) {
             clearTimeout(this.setSteadyHoverTimeout)
             this.setSteadyHoverTimeout = null
@@ -204,6 +192,17 @@ export const initializeState = (state: State, userOption?: UserProps) => {
         }
       }
     },
+  })
+  merge(state, {
+    ...userOption,
+    setSteadyHoverTimeout: null,
+    isTouch: false,
+    isVisible: false,
+    isActive: false,
+    isSelection: false,
+    isSteadyHover: false,
+    hoverTarget: null,
+    point: [0, 0]
   })
   renderContent()
 }

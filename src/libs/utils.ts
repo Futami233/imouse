@@ -9,6 +9,18 @@ export const merge = (content: any, option: any) => {
 export const setStyle = (dom: HTMLElement) => {
   if (dom instanceof HTMLElement) {
     Object.defineProperties(dom, {
+      point: {
+        get: function () {
+          return this._point
+        },
+        set: function (value) {
+          if (!this._point || this._point[0] !== value[0] || this._point[1] !== value[1]) {
+            this._point = value
+            const transform = `translate3d(${value[0]}px, ${value[1]}px, 0px)`
+            this.style.transform = this.style.webkitTransform = transform
+          }
+        }
+      },
       width: {
         get: function () {
           return this._width

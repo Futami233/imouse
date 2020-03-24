@@ -56,6 +56,5 @@ export interface State extends Props {
   isSelection: boolean
   isSteadyHover: boolean
   hoverTarget: HTMLElement | null
-  cursorLeft: number
-  cursorTop: number
+  point: Array<number>
 }
