@@ -62,12 +62,14 @@ export const initializeState = (state: State, userOption?: UserProps) => {
     transitionProperty: 'top, left, right, bottom, border-radius, background-color, backdrop-filter, -webkit-backdrop-filter, opacity'
   }
   const glowStyle = {
-    position: 'position',
+    position: 'absolute',
     left: 0,
     top: 0,
     bottom: 0,
     right: 0,
-    transitionProperty: 'all'
+    transitionProperty: 'all',
+    borderRadius: 0,
+    backgroundImage: ''
   }
   state.container && setStyle(state.container)
   state.cursor && setStyle(state.cursor)
@@ -86,7 +88,8 @@ export const initializeState = (state: State, userOption?: UserProps) => {
         top: (targetRect[0].top - padding) - state.point[1],
         right: state.point[0] - (targetRect[0].right + padding),
         bottom: state.point[1] - (targetRect[0].bottom + padding),
-        borderRadius: radius
+        borderRadius: radius,
+        backdropFilter: ''
       })
       merge(state.glow,
         {
@@ -147,6 +150,7 @@ export const initializeState = (state: State, userOption?: UserProps) => {
       set: function (value) {
         this._isTouch = value
         this.isVisible = !value
+        renderContent()
       }
     },
     point: {

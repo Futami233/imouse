@@ -105,8 +105,13 @@ export const setStyle = (dom: HTMLElement) => {
         set: function (value) {
           if (this._backdropFilter !== value) {
             this._backdropFilter = value
-            this.style.backdropFilter = `blur(${value}px)`
-            this.style.WebkitBackdropFilter = `blur(${value}px)`
+            if (value !== '') {
+              this.style.backdropFilter = `blur(${value}px)`
+              this.style.WebkitBackdropFilter = `blur(${value}px)`
+            } else {
+              this.style.backdropFilter = ''
+              this.style.WebkitBackdropFilter = ''
+            }
           }
         }
       },
@@ -128,7 +133,11 @@ export const setStyle = (dom: HTMLElement) => {
         set: function (value) {
           if (this._backgroundImage !== value) {
             this._backgroundImage = value
-            this.style.backgroundImage = `radial-gradient(${value} 0%, transparent 50%)`
+            if (value !== '') {
+              this.style.backgroundImage = `radial-gradient(${value} 0%, transparent 50%)`
+            } else {
+              this.style.backgroundImage = ''
+            }
           }
         }
       },
